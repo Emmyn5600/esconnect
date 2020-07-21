@@ -1,0 +1,54 @@
+{
+  "name": "esconnect",
+  "version": "1.0.0",
+  "description": "Esconnect shopping web endpoints",
+  "main": "app.js",
+  "scripts": {
+    "dev-start": " nodemon --exec babel-node ./server/server.js",
+    "prod-start": "SET NODE_ENV=production & nodemon --exec babel-node ./server/server.js",
+    "start": " babel-node ./server/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Emmyn5600/esconnect.git"
+  },
+  "author": "Fabrice Irankunda",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Emmyn5600/esconnect/issues"
+  },
+  "homepage": "https://github.com/Emmyn5600/esconnect#readme",
+  "dependencies": {
+    "@babel/cli": "^7.8.3",
+    "@babel/core": "^7.8.3",
+    "@babel/node": "^7.8.3",
+    "@babel/plugin-proposal-class-properties": "^7.8.3",
+    "@babel/polyfill": "^7.8.3",
+    "@babel/preset-env": "^7.8.3",
+    "axios": "^0.19.2",
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
+    "env": "0.0.2",
+    "express": "^4.17.1",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^5.8.9",
+    "morgan": "^1.10.0",
+    "nodemailer": "^6.4.6",
+    "nodemon": "^2.0.2",
+    "twilio": "^3.43.1",
+    "validator": "^12.2.0"
+  },
+  "devDependencies": {
+    "eslint": "^5.16.0",
+    "eslint-config-airbnb": "^18.2.0",
+    "eslint-config-prettier": "^6.11.0",
+    "eslint-plugin-import": "^2.22.0",
+    "eslint-plugin-jsx-a11y": "^6.3.1",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-prettier": "^3.1.4",
+    "eslint-plugin-react": "^7.20.3",
+    "prettier": "^2.0.5"
+  }
+}

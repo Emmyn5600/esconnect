@@ -75,7 +75,7 @@ export default (err, req, res, next) => {
     let error = { ...err };
     if (error.name === "CastError") error = handleCastErrorDB(error);
     if (error.code === 11000) error = handleDuplicateFieldsErrorDB();
-    if (error.name === "ValidationError")
+    if (error._message.startsWith("Product validation failed"))
       error = handleValidationErrorDB(error);
     if (error.name === "JsonWebTokenError") error = handleJsonWebTokenError();
     if (error.name === "TokenExpiredError") error = handleTokenExpErr();
@@ -85,7 +85,7 @@ export default (err, req, res, next) => {
     if (error.code === 20429) error = handleTwilioRequestErr();
 
     sendProdErr(error, res);
-  } else if (process.env.NODE_ENV === "development") {
+  } else if (process.env.NODE_ENV.startsWith("development")) {
     sendDevErr(err, res);
   }
 };

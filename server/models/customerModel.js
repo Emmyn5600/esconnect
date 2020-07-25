@@ -10,7 +10,6 @@ const customerSchema = new moongose.Schema(
     email: {
       type: String,
       required: [true, "Please provide your email"],
-      unique: true,
       lowercase: true,
       trim: true,
       validate: [validator.isEmail, "Please provide a valid email"],
@@ -23,7 +22,7 @@ const customerSchema = new moongose.Schema(
     },
     telephone: {
       type: String,
-      unique: true,
+      required: [true, "Please provide your phone number"],
     },
   },
   {

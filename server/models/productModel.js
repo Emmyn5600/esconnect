@@ -1,5 +1,6 @@
 import moongose from "mongoose";
 
+delete moongose.connection.models["Product"];
 const productSchema = new moongose.Schema(
   {
     name: {
@@ -10,6 +11,7 @@ const productSchema = new moongose.Schema(
     image: String,
     thumbmail: Number,
     category: String,
+    price: Number,
     createdDate: {
       type: Date,
       default: Date.now(),

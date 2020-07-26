@@ -31,6 +31,6 @@ const customerSchema = new moongose.Schema(
   }
 );
 
-const Product = moongose.model("Product", customerSchema);
+const Customer = moongose.model("Customer", customerSchema);
 
-export default Product;
+export default Customer;

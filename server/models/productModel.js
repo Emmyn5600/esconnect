@@ -1,6 +1,5 @@
 import moongose from "mongoose";
 
-delete moongose.connection.models["Product"];
 const productSchema = new moongose.Schema(
   {
     name: {

@@ -46,6 +46,17 @@ const orderSchema = new moongose.Schema(
   }
 );
 
+orderSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: "customer",
+    select: "customerNames email telephone",
+  }).populate({
+    path: "product",
+    select: "name category price",
+  });
+  next();
+});
+
 const Order = moongose.model("Order", orderSchema);
 
 export default Order;

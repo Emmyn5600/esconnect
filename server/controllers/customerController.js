@@ -58,10 +58,48 @@ export const createCustomer = catchAsyncErr(async (req, res, next) => {
 
 export const getCustomer = catchAsyncErr(async (req, res, next) => {
   const customer = await Customer.findById(req.params.id);
+  if (!customer)
+    return next(new AppError(404, "No customer found with that ID"));
   res.status(200).json({
     status: "success",
     data: {
       customer,
     },
+  });
+});
+
+export const getAllCustomers = catchAsyncErr(async (req, res, next) => {
+  const customers = await Customer.find();
+  res.status(200).json({
+    status: "success",
+    results: customers.length,
+    data: {
+      customers,
+    },
+  });
+});
+
+export const updateCustomer = catchAsyncErr(async (req, res, next) => {
+  const customer = await Customer.findByIdAndUpdate(req.params.id, {
+    new: true,
+    runValidators: true,
+  });
+  if (!customer)
+    return next(new AppError(404, "No customer found with that ID"));
+  res.status(200).json({
+    status: "success",
+    data: {
+      customer,
+    },
+  });
+});
+
+export const deleteCustomer = catchAsyncErr(async (req, res, next) => {
+  const customer = await Customer.findByIdAndDelete(req.params.id);
+  if (!customer)
+    return next(new AppError(404, "No customer found with that ID"));
+  res.status(204).json({
+    status: "success",
+    data: null,
   });
 });

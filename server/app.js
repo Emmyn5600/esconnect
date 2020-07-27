@@ -17,7 +17,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use("/api/v1/customers", customerRouter);
 app.use("/api/v1/products", productRouter);
-// app.use("/api/v1/orders", orderRouter);
+app.use("/api/v1/orders", orderRouter);
 
 app.all("*", (req, res, next) => {
   next(new AppError(404, `Can't find ${req.originalUrl} on this server😔`));

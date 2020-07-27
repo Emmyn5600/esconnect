@@ -24,6 +24,14 @@ const productSchema = new moongose.Schema(
   }
 );
 
+// virtual populate
+
+productSchema.virtual("orders", {
+  ref: "Order",
+  foreignField: "product",
+  localField: "_id",
+});
+
 const Product = moongose.model("Product", productSchema);
 
 export default Product;

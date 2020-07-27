@@ -30,7 +30,12 @@ const customerSchema = new moongose.Schema(
     toObject: { virtuals: true },
   }
 );
-
+// Virtual populate
+customerSchema.virtual("orders", {
+  ref: "Order",
+  foreignField: "customer",
+  localField: "_id",
+});
 const Customer = moongose.model("Customer", customerSchema);
 
 export default Customer;

@@ -27,10 +27,8 @@ mongoose
     console.log("DB connected successfully!.");
   });
 
-const port = 5000 || process.env.PORT;
-const server = app.listen(port, () => {
-  console.log(`Listerning on port ${port}....\n*****************\n`);
-});
+const port =  process.env.PORT || 5000;
+const server =  app.listen(port, () => console.log(`Listerning on port ${port}....\n*****************\n`));
 
 // process.on("unhandledRejection", (err) => {
 //   console.log("UNHANDLED REJECTION 💥💥 Shutting down...");

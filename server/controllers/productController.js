@@ -1,4 +1,5 @@
 import Product from "../models/productModel";
+import Order from "../models/orderModel";
 import catchAsyncErr from "../utils/catchAsyncErr";
 import AppError from "../utils/appError";
 
@@ -51,6 +52,11 @@ export const updateProduct = catchAsyncErr(async (req, res, next) => {
 
 export const deleteProduct = catchAsyncErr(async (req, res, next) => {
   const product = await Product.findByIdAndDelete(req.params.id);
+  await Order.updateMany(
+    {},
+    { $pull: { product: { $in: [req.params.id] } } },
+    { multi: true }
+  );
   if (!product) return next(new AppError(404, "No product found with that ID"));
   res.status(204).json({
     status: "success",

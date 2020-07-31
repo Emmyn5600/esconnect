@@ -96,6 +96,11 @@ export const updateCustomer = catchAsyncErr(async (req, res, next) => {
 
 export const deleteCustomer = catchAsyncErr(async (req, res, next) => {
   const customer = await Customer.findByIdAndDelete(req.params.id);
+  await Order.updateMany(
+    {},
+    { $pull: { customer: { $in: [req.params.id] } } },
+    { multi: true }
+  );
   if (!customer)
     return next(new AppError(404, "No customer found with that ID"));
   res.status(204).json({

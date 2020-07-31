@@ -3,10 +3,8 @@ import validator from "validator";
 
 const customerSchema = new moongose.Schema(
   {
-    customerNames: {
-      firstName: String,
-      lastName: String,
-    },
+    firstName: String,
+    lastName: String,
     email: {
       type: String,
       required: [true, "Please provide your email"],

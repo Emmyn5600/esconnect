@@ -49,7 +49,7 @@ const orderSchema = new moongose.Schema(
 orderSchema.pre(/^find/, function (next) {
   this.populate({
     path: "customer",
-    select: "customerNames email telephone",
+    select: "firstName lastName email telephone",
   }).populate({
     path: "product",
     select: "name category price",

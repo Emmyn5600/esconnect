@@ -1,10 +1,13 @@
 /* eslint-disable node/no-unsupported-features/es-syntax */
+import _ from "lodash";
+import bcrypt from 'bcrypt'
 import Customer from "../models/customerModel";
 import Order from "../models/orderModel";
 import Product from "../models/productModel";
 import catchAsyncErr from "../utils/catchAsyncErr";
 import AppError from "../utils/appError";
 import formatErrors from "../utils/validationErrorsHandling";
+import { tokenGenerator } from "../utils/tokenGenerator";
 
 export const createCustomer = catchAsyncErr(async (req, res, next) => {
   const {
@@ -65,46 +68,100 @@ export const createNewCustomer = async (req, res) => {
     firstName,
     lastName,
     email,
+    password,
     city,
     country,
     zipcode,
     telephone,
   } = req.body;
 
-  const customer = new Customer({
-    firstName,
-    lastName,
-    email,
-    city,
-    country,
-    zipcode,
-    telephone,
-  })
+  const emailExist = await Customer.find({ email });
 
-  const customers = await Customer.find();
-  const emailExist = customers.find(e => e.email === email)
-
-  if(emailExist){
+  if(emailExist.length > 0){
     return res.status(409).json({
       status: 409,
       error: 'Email already exist'
     })
   }
-  
-  const newCustomer = await customer.save();
-  return res.status(201).json({
-    status: 201,
-    message: 'customer created successfully',
-    data: newCustomer
-  })
+
+  bcrypt.hash(password, 10, async(err, hash) => {
+    if(err) {
+      return res.status(500).json({
+        status: 500,
+        errors: err
+      })
+    }
+      const customer = new Customer({
+        firstName,
+        lastName,
+        email,
+        password: hash,
+        city,
+        country,
+        zipcode,
+        telephone,
+      })
+
+      const newCustomer = await customer.save()
+
+      const payload  = {
+        id: newCustomer._id,
+        firstName: newCustomer.firstName,
+        lastName: newCustomer.lastName,
+        email: newCustomer.email
+      }
+
+      const token = await tokenGenerator(payload)
+      return res.status(201).json({
+        status: 201,
+        message: 'customer created successfully',
+        token,
+        data: _.pick(newCustomer, ['firstName', 'lastName', 'email', 'city', 'country', 'zipcode', 'telephone'])
+      })
+    
+    })
   }catch (err) {
     res.status(400).json({
       status: 400,
       errors: formatErrors(err.message)
     })
   }
-  
+}
 
+export const loginCustomer = async(req, res) => {
+  const{ email, password } = req.body
+  const customer = await Customer.findOne({ email });
+  if(!customer){
+    return res.status(401).json({
+      status: 401,
+      message: 'Invalid username or password'
+    })
+  }
+
+  bcrypt.compare(password, customer.password, async(err, result) => {
+    if(err) {
+      return res.status(401).json({
+        status: 401,
+        message: 'Invalid username or password'
+      })
+    }
+
+    if(result) {
+      const payload  = {
+        id: customer._id,
+        firstName: customer.firstName,
+        lastName: customer.lastName,
+        email: customer.email
+      }
+
+      const token = await tokenGenerator(payload)
+      return res.status(200).json({
+        status: 200,
+        token,
+        message: 'Logged in successfully'
+      })
+    }
+  })
 }
 
 export const getCustomer = catchAsyncErr(async (req, res, next) => {

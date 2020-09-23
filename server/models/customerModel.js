@@ -19,6 +19,11 @@ const customerSchema = new moongose.Schema(
       trim: true,
       validate: [validator.isEmail, "Please provide a valid email"],
     },
+    password: {
+      type: String,
+      required: [true, "Password is required"],
+      minlength: [6, 'Password should have atleast 6 characters']
+    },
     city: String,
     country: String,
     zipcode: {

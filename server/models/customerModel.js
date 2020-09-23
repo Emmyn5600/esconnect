@@ -1,13 +1,20 @@
+/* eslint-disable node/no-unsupported-features/es-syntax */
 import moongose from "mongoose";
 import validator from "validator";
 
 const customerSchema = new moongose.Schema(
   {
-    firstName: String,
-    lastName: String,
+    firstName: {
+      type: String,
+      required: [true, 'First name is required']
+    },
+    lastName: {
+      type: String,
+      required: [true, 'Last name is required']
+    },
     email: {
       type: String,
-      required: [true, "Please provide your email"],
+      required: [true, "Email is required"],
       lowercase: true,
       trim: true,
       validate: [validator.isEmail, "Please provide a valid email"],
@@ -16,24 +23,24 @@ const customerSchema = new moongose.Schema(
     country: String,
     zipcode: {
       type: String,
-      required: [true, "Provide zipcode"],
+      required: [true, "zipcode is required"],
     },
     telephone: {
       type: String,
-      required: [true, "Please provide your phone number"],
+      required: [true, "Phone number is required"],
     },
   },
-  {
-    toJSON: { virtuals: true },
-    toObject: { virtuals: true },
-  }
+  // {
+  //   toJSON: { virtuals: true },
+  //   toObject: { virtuals: true },
+  // }
 );
 // Virtual populate
-customerSchema.virtual("orders", {
-  ref: "Order",
-  foreignField: "customer",
-  localField: "_id",
-});
+// customerSchema.virtual("orders", {
+//   ref: "Order",
+//   foreignField: "customer",
+//   localField: "_id",
+// });
 const Customer = moongose.model("Customer", customerSchema);
 
 export default Customer;

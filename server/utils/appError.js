@@ -1,3 +1,4 @@
+/* eslint-disable node/no-unsupported-features/es-syntax */
 class AppError {
   constructor(statusCode, msg) {
     this.statusCode = statusCode;

@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import app from "./app";
 import mongoose from "mongoose";
 
-dotenv.config({ path: "./config.env" });
+dotenv.config();
 
 // process.on("uncaughtException", (error) => {
 //   console.log("UNCAUGHT EXCEPTION 💥💥, shutting down...");

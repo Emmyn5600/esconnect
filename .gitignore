@@ -76,6 +76,3 @@ dist
 
 # Gatsby files
 .cache/
-
-
-package-lock.json

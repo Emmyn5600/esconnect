@@ -1,21 +1,24 @@
+/* eslint-disable node/no-unsupported-features/es-syntax */
 import moongose from "mongoose";
 
 const orderSchema = new moongose.Schema(
   {
-    product: [
-      {
-        type: moongose.Schema.ObjectId,
-        ref: "Product",
-        required: [true, "Order must belong to a certain product"],
-      },
-    ],
-    customer: [
-      {
-        type: moongose.Schema.ObjectId,
-        ref: "Customer",
-        required: [true, "Order must belong to a certain Customer"],
-      },
-    ],
+    // product: [
+    //   {
+    //     type: moongose.Schema.ObjectId,
+    //     ref: "Product",
+    //     required: [true, "Order must belong to a certain product"],
+    //   },
+    // ],
+    productId: String,
+    // customer: [
+    //   {
+    //     type: moongose.Schema.ObjectId,
+    //     ref: "Customer",
+    //     required: [true, "Order must belong to a certain Customer"],
+    //   },
+    // ],
+    customerId: String,
     price: {
       type: Number,
       required: [true, "Order must have a price"],
@@ -46,16 +49,16 @@ const orderSchema = new moongose.Schema(
   }
 );
 
-orderSchema.pre(/^find/, function (next) {
-  this.populate({
-    path: "customer",
-    select: "firstName lastName email telephone",
-  }).populate({
-    path: "product",
-    select: "name category price",
-  });
-  next();
-});
+// orderSchema.pre(/^find/, function (next) {
+//   this.populate({
+//     path: "customer",
+//     select: "firstName lastName email telephone",
+//   }).populate({
+//     path: "product",
+//     select: "name category price",
+//   });
+//   next();
+// });
 
 const Order = moongose.model("Order", orderSchema);
 

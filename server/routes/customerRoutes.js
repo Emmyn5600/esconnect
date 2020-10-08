@@ -5,8 +5,8 @@ import * as customerController from "../controllers/customerController";
 const router = express.Router();
 
 router.route("/").get(customerController.getAllCustomers);
-router.post('/signup', customerController.createNewCustomer);
-router.post('/signin', customerController.loginCustomer);
+router.post('/signup', customerController.createNewUser);
+router.post('/signin', customerController.loginUser);
 router
   .route("/:id")
   .post(customerController.createCustomer)

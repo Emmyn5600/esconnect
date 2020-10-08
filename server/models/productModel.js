@@ -1,4 +1,5 @@
-import moongose from "mongoose";
+/* eslint-disable node/no-unsupported-features/es-syntax */
+import moongose, { Schema } from "mongoose";
 
 const productSchema = new moongose.Schema(
   {
@@ -7,16 +8,21 @@ const productSchema = new moongose.Schema(
       required: [true, "product must have a name"],
     },
     description: String,
-    image: String,
     thumbmail: Number,
     category: String,
     price: Number,
+    images: Array,
     createdDate: {
       type: Date,
       default: Date.now(),
     },
     stock: Number,
     size: String,
+    productColor: String,
+    seller: {
+      type: Schema.Types.ObjectId,
+      ref: 'User'
+    },
   },
   {
     toJSON: { virtuals: true },
@@ -26,11 +32,11 @@ const productSchema = new moongose.Schema(
 
 // virtual populate
 
-productSchema.virtual("orders", {
-  ref: "Order",
-  foreignField: "product",
-  localField: "_id",
-});
+// productSchema.virtual("orders", {
+//   ref: "Order",
+//   foreignField: "product",
+//   localField: "_id",
+// });
 
 const Product = moongose.model("Product", productSchema);
 

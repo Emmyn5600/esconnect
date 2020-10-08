@@ -1,7 +1,7 @@
 /* eslint-disable node/no-unsupported-features/es-syntax */
 import _ from "lodash";
 import bcrypt from 'bcrypt'
-import Customer from "../models/customerModel";
+import User from "../models/customerModel";
 import Order from "../models/orderModel";
 import Product from "../models/productModel";
 import catchAsyncErr from "../utils/catchAsyncErr";
@@ -25,7 +25,7 @@ export const createCustomer = catchAsyncErr(async (req, res, next) => {
     shippingAddress,
   } = req.body;
 
-  const newCustomer = await Customer.create({
+  const newUser = await User.create({
     firstName,
     lastName,
     email,
@@ -35,7 +35,7 @@ export const createCustomer = catchAsyncErr(async (req, res, next) => {
     telephone,
   });
 
-  const customer = newCustomer._id;
+  const customer = newUser._id;
   const good = await Product.findById(req.params.id);
   const product = good._id;
   const {price} = good;
@@ -54,7 +54,7 @@ export const createCustomer = catchAsyncErr(async (req, res, next) => {
     status: "success",
     message: "Order created successfully",
     data: {
-      newCustomer,
+      newUser,
     },
     order: {
       order,
@@ -62,7 +62,7 @@ export const createCustomer = catchAsyncErr(async (req, res, next) => {
   });
 });
 
-export const createNewCustomer = async (req, res) => {
+export const createNewUser = async (req, res) => {
   try{
     const {
     firstName,
@@ -71,11 +71,10 @@ export const createNewCustomer = async (req, res) => {
     password,
     city,
     country,
-    zipcode,
     telephone,
   } = req.body;
 
-  const emailExist = await Customer.find({ email });
+  const emailExist = await User.find({ email });
 
   if(emailExist.length > 0){
     return res.status(409).json({
@@ -86,59 +85,60 @@ export const createNewCustomer = async (req, res) => {
 
   bcrypt.hash(password, 10, async(err, hash) => {
     if(err) {
+      console.log('ERROR HHHHHH', password)
       return res.status(500).json({
         status: 500,
         errors: err
       })
     }
-      const customer = new Customer({
+      const user = new User({
         firstName,
         lastName,
         email,
         password: hash,
         city,
         country,
-        zipcode,
         telephone,
       })
 
-      const newCustomer = await customer.save()
+      const newUser = await user.save()
 
       const payload  = {
-        id: newCustomer._id,
-        firstName: newCustomer.firstName,
-        lastName: newCustomer.lastName,
-        email: newCustomer.email
+        id: newUser._id,
+        firstName: newUser.firstName,
+        lastName: newUser.lastName,
+        email: newUser.email,
+        userType: 'customer'
       }
 
       const token = await tokenGenerator(payload)
       return res.status(201).json({
         status: 201,
-        message: 'customer created successfully',
+        message: 'User created successfully',
         token,
-        data: _.pick(newCustomer, ['firstName', 'lastName', 'email', 'city', 'country', 'zipcode', 'telephone'])
+        data: _.pick(newUser, ['firstName', 'lastName', 'email', 'city', 'country', 'zipcode', 'telephone'])
       })
     
     })
   }catch (err) {
     res.status(400).json({
       status: 400,
-      errors: formatErrors(err.message)
+      error: formatErrors(err.message)
     })
   }
 }
 
-export const loginCustomer = async(req, res) => {
+export const loginUser = async(req, res) => {
   const{ email, password } = req.body
-  const customer = await Customer.findOne({ email });
-  if(!customer){
+  const user = await User.findOne({ email });
+  if(!user){
     return res.status(401).json({
       status: 401,
       message: 'Invalid username or password'
     })
   }
 
-  bcrypt.compare(password, customer.password, async(err, result) => {
+  bcrypt.compare(password, user.password, async(err, result) => {
     if(err) {
       return res.status(401).json({
         status: 401,
@@ -148,10 +148,11 @@ export const loginCustomer = async(req, res) => {
 
     if(result) {
       const payload  = {
-        id: customer._id,
-        firstName: customer.firstName,
-        lastName: customer.lastName,
-        email: customer.email
+        id: user._id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        userType: user.userType
       }
 
       const token = await tokenGenerator(payload)
@@ -165,52 +166,52 @@ export const loginCustomer = async(req, res) => {
 }
 
 export const getCustomer = catchAsyncErr(async (req, res, next) => {
-  const customer = await Customer.findById(req.params.id);
-  if (!customer)
-    return next(new AppError(404, "No customer found with that ID"));
+  const user = await User.findById(req.params.id);
+  if (!user)
+    return next(new AppError(404, "No user found with that ID"));
   res.status(200).json({
     status: "success",
     data: {
-      customer,
+      user,
     },
   });
 });
 
 export const getAllCustomers = catchAsyncErr(async (req, res, next) => {
-  const customers = await Customer.find();
+  const users = await User.find();
   res.status(200).json({
     status: "success",
-    results: customers.length,
+    results: users.length,
     data: {
-      customers,
+      users,
     },
   });
 });
 
 export const updateCustomer = catchAsyncErr(async (req, res, next) => {
-  const customer = await Customer.findByIdAndUpdate(req.params.id, {
+  const user = await User.findByIdAndUpdate(req.params.id, {
     new: true,
     runValidators: true,
   });
-  if (!customer)
-    return next(new AppError(404, "No customer found with that ID"));
+  if (!user)
+    return next(new AppError(404, "No user found with that ID"));
   res.status(200).json({
     status: "success",
     data: {
-      customer,
+      user,
     },
   });
 });
 
 export const deleteCustomer = catchAsyncErr(async (req, res, next) => {
-  const customer = await Customer.findByIdAndDelete(req.params.id);
+  const user = await User.findByIdAndDelete(req.params.id);
   await Order.updateMany(
     {},
-    { $pull: { customer: { $in: [req.params.id] } } },
+    { $pull: { user: { $in: [req.params.id] } } },
     { multi: true }
   );
-  if (!customer)
-    return next(new AppError(404, "No customer found with that ID"));
+  if (!user)
+    return next(new AppError(404, "No user found with that ID"));
   res.status(204).json({
     status: "success",
     data: null,

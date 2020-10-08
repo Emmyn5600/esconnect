@@ -1,8 +1,8 @@
 /* eslint-disable node/no-unsupported-features/es-syntax */
-import moongose from "mongoose";
+import moongose, { Schema } from "mongoose";
 import validator from "validator";
 
-const customerSchema = new moongose.Schema(
+const userSchema = new moongose.Schema(
   {
     firstName: {
       type: String,
@@ -26,14 +26,20 @@ const customerSchema = new moongose.Schema(
     },
     city: String,
     country: String,
-    zipcode: {
-      type: String,
-      required: [true, "zipcode is required"],
-    },
     telephone: {
       type: String,
       required: [true, "Phone number is required"],
     },
+
+    userType: {
+      type: String,
+      default: 'customer'
+    },
+
+    products: [{
+      type: Schema.Types.ObjectId,
+      ref: 'Product'
+    }]
   },
   // {
   //   toJSON: { virtuals: true },
@@ -46,6 +52,6 @@ const customerSchema = new moongose.Schema(
 //   foreignField: "customer",
 //   localField: "_id",
 // });
-const Customer = moongose.model("Customer", customerSchema);
+const User = moongose.model("User", userSchema);
 
-export default Customer;
+export default User;

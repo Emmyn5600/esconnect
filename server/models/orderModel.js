@@ -1,5 +1,5 @@
 /* eslint-disable node/no-unsupported-features/es-syntax */
-import moongose from "mongoose";
+import moongose, { Schema } from "mongoose";
 
 const orderSchema = new moongose.Schema(
   {
@@ -10,7 +10,6 @@ const orderSchema = new moongose.Schema(
     //     required: [true, "Order must belong to a certain product"],
     //   },
     // ],
-    productId: String,
     // customer: [
     //   {
     //     type: moongose.Schema.ObjectId,
@@ -18,11 +17,16 @@ const orderSchema = new moongose.Schema(
     //     required: [true, "Order must belong to a certain Customer"],
     //   },
     // ],
-    customerId: String,
+    customer: {
+      type: Schema.Types.ObjectId,
+      ref: 'User'
+    },
+    productId: String,
     price: {
       type: Number,
       required: [true, "Order must have a price"],
     },
+    customerId: String,
     orderDate: {
       type: Date,
       default: Date.now(),
@@ -40,6 +44,7 @@ const orderSchema = new moongose.Schema(
       type: String,
       required: [true, "Choose your shipping method"],
     },
+    quantity: Number,
     productSize: String,
     productColor: String,
   },

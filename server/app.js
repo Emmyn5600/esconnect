@@ -16,8 +16,8 @@ if (process.env.NODE_ENV === "development") {
 }
 
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.json())
 
 app.use(cors({ origin: true }));
 app.use("/api/v1/customers", customerRouter);

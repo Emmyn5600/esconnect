@@ -69,6 +69,7 @@ export const createNewUser = async (req, res) => {
     lastName,
     email,
     password,
+    userType,
     city,
     country,
     telephone,
@@ -83,9 +84,25 @@ export const createNewUser = async (req, res) => {
     })
   }
 
+  let status;
+
+  if(userType === 'customer'){
+    status = 'active'
+  }
+  
+  if(userType === 'seller') {
+    status = 'pending'
+  }
+
+  if(userType === 'admin'){
+    return res.status(403).json({
+      status: 403,
+      error: "You can't make yourself an Admin"
+    })
+  }
+
   bcrypt.hash(password, 10, async(err, hash) => {
     if(err) {
-      console.log('ERROR HHHHHH', password)
       return res.status(500).json({
         status: 500,
         errors: err
@@ -95,10 +112,12 @@ export const createNewUser = async (req, res) => {
         firstName,
         lastName,
         email,
+        userType,
         password: hash,
         city,
         country,
         telephone,
+        status
       })
 
       const newUser = await user.save()
@@ -108,7 +127,7 @@ export const createNewUser = async (req, res) => {
         firstName: newUser.firstName,
         lastName: newUser.lastName,
         email: newUser.email,
-        userType: 'customer'
+        userType: newUser.userType
       }
 
       const token = await tokenGenerator(payload)
@@ -116,7 +135,7 @@ export const createNewUser = async (req, res) => {
         status: 201,
         message: 'User created successfully',
         token,
-        data: _.pick(newUser, ['firstName', 'lastName', 'email', 'city', 'country', 'zipcode', 'telephone'])
+        data: _.pick(newUser, ['firstName', 'lastName', 'email', 'city', 'country', 'telephone', 'status'])
       })
     
     })

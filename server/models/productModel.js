@@ -5,7 +5,7 @@ const productSchema = new moongose.Schema(
   {
     name: {
       type: String,
-      required: [true, "product must have a name"],
+      required: [true, "product must have a name"]
     },
     description: String,
     thumbmail: Number,
@@ -16,9 +16,7 @@ const productSchema = new moongose.Schema(
       type: Date,
       default: Date.now(),
     },
-    stock: Number,
-    size: String,
-    productColor: String,
+    stock: Array,
     seller: {
       type: Schema.Types.ObjectId,
       ref: 'User'

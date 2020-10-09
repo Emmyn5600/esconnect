@@ -1,3 +1,4 @@
+/* eslint-disable radix */
 /* eslint-disable node/no-unsupported-features/es-syntax */
 import Order from "../models/orderModel";
 import Product from "../models/productModel"
@@ -11,17 +12,30 @@ export const createOrder = async(req, res) => {
       paymentMethod,
       shippingMethod,
       productColor,
-      quantity
+      quantity,
+      size
     } = req.body
 
     const product = await Product.findById(req.params.id)
-
     if(!product){
       res.status(404).json({
         status: 404,
         error: 'Product not Found'
       })
     }
+
+    const orderedProduct = product.stock.find(item => {
+      return item.productColor.toLowerCase() === productColor.toLowerCase() && item.size.toLowerCase() === size.toLowerCase()
+    })
+
+    if(orderedProduct && (parseInt(orderedProduct.quantity) < parseInt(quantity)) ){
+      return res.status(413).json({
+        status: 413,
+        error: `We have ${orderedProduct.quantity} ${orderedProduct.size} ${orderedProduct.productColor} ${product.name} in stock`
+      })
+    }
+
+    const index = product.stock.indexOf(orderedProduct)
     const { id } = req.user;
 
     const newOrder = await Order.create({
@@ -29,13 +43,17 @@ export const createOrder = async(req, res) => {
       paymentMethod,
       shippingMethod,
       quantity,
+      orderStatus: 'pending',
       customerId: id,
       productId: req.params.id,
-      productSize: product.size,
+      productSize: product.stock[index].size,
       productColor
     })
+    const productQuantity = (parseInt(product.stock[index].quantity) - parseInt(quantity))
+    await Product.findOneAndUpdate({_id: req.params.id}, {stock:[ {...product.stock[index], quantity: productQuantity}]})
 
     const order = await newOrder.save();
+
     res.status(201).json({
       status: 201,
       message: "Order created successfully",
@@ -62,9 +80,14 @@ export const getOrder = catchAsyncErr(async (req, res, next) => {
 });
 
 export const getAllOrders = catchAsyncErr(async (req, res, next) => {
-  const { id } = req.user;
-  const orders = await Order.find({customerId: id});
-
+  const { id, userType } = req.user;
+  let orders;
+  if(userType === 'admin'){
+    orders = await Order.find();
+  }else{
+    orders = await Order.find({customerId: id});
+  }
+  
   res.status(200).json({
     status: "success",
     results: orders.length,

@@ -31,10 +31,7 @@ const orderSchema = new moongose.Schema(
       type: Date,
       default: Date.now(),
     },
-    orderStatus: {
-      type: String,
-      default: "Not paid",
-    },
+    orderStatus: String,
     shippingAddress: String,
     paymentMethod: {
       type: String,

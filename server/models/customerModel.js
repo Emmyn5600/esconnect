@@ -31,11 +31,8 @@ const userSchema = new moongose.Schema(
       required: [true, "Phone number is required"],
     },
 
-    userType: {
-      type: String,
-      default: 'customer'
-    },
-
+    userType: String,
+    status: String,
     products: [{
       type: Schema.Types.ObjectId,
       ref: 'Product'

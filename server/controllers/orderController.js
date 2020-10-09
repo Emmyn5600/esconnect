@@ -22,6 +22,13 @@ export const createOrder = async(req, res) => {
         error: 'Product not Found'
       })
     }
+
+    if(product.stock < quantity ){
+      return res.status(413).json({
+        status: 413,
+        error: `We have ${product.stock} ${product.name} in stock`
+      })
+    }
     const { id } = req.user;
 
     const newOrder = await Order.create({
@@ -29,6 +36,7 @@ export const createOrder = async(req, res) => {
       paymentMethod,
       shippingMethod,
       quantity,
+      orderStatus: 'pending',
       customerId: id,
       productId: req.params.id,
       productSize: product.size,
@@ -36,6 +44,9 @@ export const createOrder = async(req, res) => {
     })
 
     const order = await newOrder.save();
+    product.stock -= order.quantity
+    await product.save()
+
     res.status(201).json({
       status: 201,
       message: "Order created successfully",
@@ -62,9 +73,14 @@ export const getOrder = catchAsyncErr(async (req, res, next) => {
 });
 
 export const getAllOrders = catchAsyncErr(async (req, res, next) => {
-  const { id } = req.user;
-  const orders = await Order.find({customerId: id});
-
+  const { id, userType } = req.user;
+  let orders;
+  if(userType === 'admin'){
+    orders = await Order.find();
+  }else{
+    orders = await Order.find({customerId: id});
+  }
+  
   res.status(200).json({
     status: "success",
     results: orders.length,

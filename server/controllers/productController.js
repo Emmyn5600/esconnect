@@ -1,3 +1,4 @@
+/* eslint-disable radix */
 /* eslint-disable node/no-unsupported-features/es-syntax */
 import * as fs from 'fs'
 import _ from 'lodash'
@@ -11,8 +12,8 @@ import uploads from '../utils/cloudinary'
 
 export const createProduct = async (req, res, next) => {
   try{
-    const { id, userType } = req.user;
-    if(userType === 'admin' || userType === 'seller'){
+    const { id, userType, status } = req.user;
+    if(userType === 'admin' || (userType === 'seller' && status === 'active')){
       const uploader = async (path) => await uploads(path, 'Images')
       const urls = []
       if(req.method === 'POST'){
@@ -28,26 +29,25 @@ export const createProduct = async (req, res, next) => {
             fs.unlinkSync(path)
         }
       }
-
       const {
           name,
           description,
           category,
           price,
-          stock,
+          quantity,
           size,
           productColor
       } = req.body
+
+      const quantityInt = parseInt(quantity);
       
       const product = new Product({
           name,
           description,
           category,
           price,
-          stock,
+          stock: [{ productColor, size, quantity: quantityInt }],
           images: urls,
-          size,
-          productColor
       });
       const user  = await  User.findById(id)
 
@@ -76,6 +76,38 @@ export const createProduct = async (req, res, next) => {
   }
   
 };
+
+export const addProductInStock = catchAsyncErr(async (req, res, next) => {
+  const product = await Product.findById(req.params.id);
+  if (!product) return next(new AppError(404, "No product found with that ID"));
+
+  const{ size, productColor, quantity } = req.body
+  const quantityInt = parseInt(quantity);
+
+  const orderedProduct = product.stock.find(item => {
+    return item.productColor.toLowerCase() === productColor.toLowerCase() && item.size.toLowerCase() === size.toLowerCase()
+  })
+
+  if (orderedProduct){
+    const index = product.stock.indexOf(orderedProduct)
+    const productQuantity = (parseInt(product.stock[index].quantity) + quantityInt)
+    await Product.findOneAndUpdate({_id: req.params.id}, {stock:[ {...product.stock[index], quantity: productQuantity}]})
+
+    return res.status(200).json({
+      status: 200,
+      data: product
+    });
+  }
+
+  const newItem = { size, productColor, quantity: quantityInt }
+  product.stock.push(newItem)
+  await product.save()
+
+  return res.status(200).json({
+    status: 200,
+    data: product
+  });
+});
 
 export const getProduct = catchAsyncErr(async (req, res, next) => {
   const product = await Product.findById(req.params.id);

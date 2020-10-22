@@ -1,3 +1,4 @@
+/* eslint-disable radix */
 /* eslint-disable node/no-unsupported-features/es-syntax */
 import Order from "../models/orderModel";
 import Product from "../models/productModel"
@@ -11,11 +12,11 @@ export const createOrder = async(req, res) => {
       paymentMethod,
       shippingMethod,
       productColor,
-      quantity
+      quantity,
+      size
     } = req.body
 
     const product = await Product.findById(req.params.id)
-
     if(!product){
       res.status(404).json({
         status: 404,
@@ -23,12 +24,18 @@ export const createOrder = async(req, res) => {
       })
     }
 
-    if(product.stock < quantity ){
+    const orderedProduct = product.stock.find(item => {
+      return item.productColor.toLowerCase() === productColor.toLowerCase() && item.size.toLowerCase() === size.toLowerCase()
+    })
+
+    if(orderedProduct && (parseInt(orderedProduct.quantity) < parseInt(quantity)) ){
       return res.status(413).json({
         status: 413,
-        error: `We have ${product.stock} ${product.name} in stock`
+        error: `We have ${orderedProduct.quantity} ${orderedProduct.size} ${orderedProduct.productColor} ${product.name} in stock`
       })
     }
+
+    const index = product.stock.indexOf(orderedProduct)
     const { id } = req.user;
 
     const newOrder = await Order.create({
@@ -39,13 +46,13 @@ export const createOrder = async(req, res) => {
       orderStatus: 'pending',
       customerId: id,
       productId: req.params.id,
-      productSize: product.size,
+      productSize: product.stock[index].size,
       productColor
     })
+    const productQuantity = (parseInt(product.stock[index].quantity) - parseInt(quantity))
+    await Product.findOneAndUpdate({_id: req.params.id}, {stock:[ {...product.stock[index], quantity: productQuantity}]})
 
     const order = await newOrder.save();
-    product.stock -= order.quantity
-    await product.save()
 
     res.status(201).json({
       status: 201,

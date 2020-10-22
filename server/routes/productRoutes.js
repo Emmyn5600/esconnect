@@ -14,6 +14,7 @@ router
 router
   .route("/:id")
   .get(productController.getProduct)
+  .post(verifyToken, productController.addProductInStock)
   .patch(productController.updateProduct)
   .delete(productController.deleteProduct);
 

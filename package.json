@@ -42,7 +42,7 @@
     "nodemailer": "^6.4.6",
     "nodemon": "^2.0.2",
     "twilio": "^3.43.1",
-    "validator": "^12.2.0"
+    "validator": "^13.7.0"
   },
   "devDependencies": {
     "eslint": "^5.16.0",
